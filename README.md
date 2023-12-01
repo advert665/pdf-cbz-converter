@@ -7,7 +7,7 @@ It was created to remedy the Humble Bundle tendency to release graphic novel and
 
 1) You will need to install [Ghostscript](https://ghostscript.com/releases/gsdnld.html) to process the files.
 
-2) Download the `pdf-cbz-converter.ps1` script to a folder on your computer. You will need to 'unblock' it as it is unsigned. To do this, right click on the file, click properties, and then check 'unblock' at the bottom of the menu.
+2) Download the `pdf-cbz-converter.ps1` script to a folder on your computer. **You will need to 'unblock' it as it is unsigned.** To do this, right click on the file, click properties, and then check 'unblock' at the bottom of the menu.
 
 3) Run the following in PowerShell:
 
