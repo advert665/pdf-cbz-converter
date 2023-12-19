@@ -22,7 +22,7 @@ Version 0.2 of the script identifies pages that are black and white and converts
 
 ## Altering the script
 
-If you want to change the quality settings you can these lines of the script:
+If you want to change the quality settings you can change these lines of the script:
 ```PowerShell
 # Black and White
 gswin64c.exe -q -dUseCropBox -dNOSAFER -dNOPAUSE -sDEVICE=pnggray -r600 [...]
