@@ -59,7 +59,7 @@ if ($fileDialog.ShowDialog() -eq 'OK') {
 
 						# Convert to grayscale png @600dpi, lossless
 						gswin64c.exe -q -dUseCropBox -dNOSAFER -dNOPAUSE -sDEVICE=pnggray -r600 -dFirstPage="$paperpage" -dLastPage="$paperpage" -sOutputFile="$folderPath\$paperpage.jpg" "$fileAddress" -dBATCH
-						Write-Output("Page $paperpage`. Colour values: $pagecolour <<<< black and white")
+						Write-Output("Converting page $paperpage`. Colour values: $pagecolour <<<< black and white")
 					}
 					# Catch all pages that have colour
 					else{
