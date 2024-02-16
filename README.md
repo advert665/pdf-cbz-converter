@@ -1,4 +1,4 @@
-# Pdf-Cbz-Converter 0.2
+# Pdf-Cbz-Converter 0.3
 This is a simple PowerShell script that batch converts .pdf files to .cbz using Ghostscript. 
 
 It was created to remedy the Humble Bundle tendency to release graphic novel and comic bundles as .pdf files only. It is written as simply as possible so that anyone can easily check the file and see that it is safe to use. 
