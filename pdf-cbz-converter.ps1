@@ -1,5 +1,5 @@
 # pdf-cbz-converter
-# Version 0.2
+# Version 0.3
 # https://github.com/advert665/pdf-cbz-converter/
 
 # import Windows Forms for file dialogue
@@ -7,7 +7,30 @@ Add-Type -AssemblyName System.Windows.Forms
 
 #Constants
 $onlyblackandwhite = "0.00000"
-$version = "0.2"
+$version = "0.3"
+
+#Functions
+function Convert-Grayscale {
+	# Convert to grayscale png @600dpi, lossless
+	gswin64c.exe -q -dUseCropBox -dNOSAFER -dNOPAUSE -sDEVICE=pnggray -r600 -dFirstPage="$paperpage" -dLastPage="$paperpage" -sOutputFile="$folderPath\$paperpage.png" "$fileAddress" -dBATCH
+	Write-Output("Converting page $paperpage`. Colour values: $pagecolour <<<< black and white")
+}
+
+function Convert-Colour {
+	# Convert to jpeg @400dpi, 90% compression
+	gswin64c.exe -q -dUseCropBox -dNOSAFER -dNOPAUSE -sDEVICE=jpeg -r400 -dJPEGQ=90 -dFirstPage="$paperpage" -dLastPage="$paperpage" -sOutputFile="$folderPath\$paperpage.jpg" "$fileAddress" -dBATCH
+	Write-Output("Converting page $paperpage`. Colour values: $pagecolour <<<< colour")
+}
+
+#Check for arguments
+if ($args.Length -gt 0) {
+	$forceblackandwhite = $args[0]
+	if ($forceblackandwhite -eq 'bw'){
+		Write-Host "Forcing black and white conversion for all pages except cover." -ForegroundColor Green
+	} else {
+		Write-Host "Argument not recognised. Continuing with default conversion." -ForegroundColor Red
+	}
+}
 
 # Create OpenFileDialog to select a file
 $fileDialog = New-Object System.Windows.Forms.OpenFileDialog
@@ -45,28 +68,45 @@ if ($fileDialog.ShowDialog() -eq 'OK') {
 				$pagescolourinfo = gswin64c.exe  -o - -sDEVICE=inkcov "$fileAddress" | select-string -Pattern "CMYK"
 				Write-Host("Colour analysis complete.") -ForegroundColor Green
 
-				# Run code based on colour data
-				For($page = 0; $page -le $pagescolourinfo.length-1; $page++) {
+				if ($forceblackandwhite -eq 'bw'){
 
-					# Convert the colour information into a string and store it
-					$pagecolour = [string]$pagescolourinfo[$page];
+					# Convert all pages except cover to grayscale
+					For($page = 0; $page -le $pagescolourinfo.length-1; $page++) {
+						
+						# Convert the colour information into a string and store it
+						$pagecolour = [string]$pagescolourinfo[$page];
 
-					# Paperpage runs one ahead of pagescolour index
-					$paperpage = $page+1; 
+						# Paperpage runs one ahead of pagescolour index
+						$paperpage = $page+1; 
 
-					# Test the page colour to see if only black and white
-					if($pagecolour.contains($onlyblackandwhite)){
-
-						# Convert to grayscale png @600dpi, lossless
-						gswin64c.exe -q -dUseCropBox -dNOSAFER -dNOPAUSE -sDEVICE=pnggray -r600 -dFirstPage="$paperpage" -dLastPage="$paperpage" -sOutputFile="$folderPath\$paperpage.png" "$fileAddress" -dBATCH
-						Write-Output("Converting page $paperpage`. Colour values: $pagecolour <<<< black and white")
+						# Cover page
+						if($page -eq 0){
+							Convert-Colour
+						}
+						# All other pages
+						else{
+							Convert-Grayscale
+						}
 					}
-					# Catch all pages that have colour
-					else{
+				} else {
 
-						# Convert to jpeg @400dpi, 90% compression
-						gswin64c.exe -q -dUseCropBox -dNOSAFER -dNOPAUSE -sDEVICE=jpeg -r400 -dJPEGQ=90 -dFirstPage="$paperpage" -dLastPage="$paperpage" -sOutputFile="$folderPath\$paperpage.jpg" "$fileAddress" -dBATCH
-						Write-Output("Converting page $paperpage`. Colour values: $pagecolour <<<< colour")
+					# Run code based on colour data
+					For($page = 0; $page -le $pagescolourinfo.length-1; $page++) {
+
+						# Convert the colour information into a string and store it
+						$pagecolour = [string]$pagescolourinfo[$page];
+
+						# Paperpage runs one ahead of pagescolour index
+						$paperpage = $page+1; 
+
+						# Test the page colour to see if only black and white
+						if($pagecolour.contains($onlyblackandwhite)){
+							Convert-Grayscale
+						}
+						# Catch all pages that have colour
+						else{
+							Convert-Colour
+						}
 					}
 				}
 
