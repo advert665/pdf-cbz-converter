@@ -1,35 +1,28 @@
 # pdf-cbz-converter
-# Version 0.3
+# Version 0.4
 # https://github.com/advert665/pdf-cbz-converter/
+
+#Define parameters (must be first line of script)
+param([int]$blackres = 600, [int]$colourres = 400, [int]$quality = 90, [bool]$forceblackandwhite = $False)
 
 # import Windows Forms for file dialogue
 Add-Type -AssemblyName System.Windows.Forms
 
 #Constants
 $onlyblackandwhite = "0.00000"
-$version = "0.3"
+$version = "0.4"
 
 #Functions
 function Convert-Grayscale {
 	# Convert to grayscale png @600dpi, lossless
-	gswin64c.exe -q -dUseCropBox -dNOSAFER -dNOPAUSE -sDEVICE=pnggray -r600 -dFirstPage="$paperpage" -dLastPage="$paperpage" -sOutputFile="$folderPath\$paperpage.png" "$fileAddress" -dBATCH
+	gswin64c.exe -q -dUseCropBox -dNOSAFER -dNOPAUSE -sDEVICE=pnggray -r"$blackres" -dFirstPage="$paperpage" -dLastPage="$paperpage" -sOutputFile="$folderPath\$paperpage.png" "$fileAddress" -dBATCH
 	Write-Output("Converting page $paperpage`. Colour values: $pagecolour <<<< black and white")
 }
 
 function Convert-Colour {
-	# Convert to jpeg @400dpi, 90% compression
-	gswin64c.exe -q -dUseCropBox -dNOSAFER -dNOPAUSE -sDEVICE=jpeg -r400 -dJPEGQ=90 -dFirstPage="$paperpage" -dLastPage="$paperpage" -sOutputFile="$folderPath\$paperpage.jpg" "$fileAddress" -dBATCH
+	# Convert to jpeg @400dpi, 90% quality compression
+	gswin64c.exe -q -dUseCropBox -dNOSAFER -dNOPAUSE -sDEVICE=jpeg -r"$colourres" -dJPEGQ="$quality" -dFirstPage="$paperpage" -dLastPage="$paperpage" -sOutputFile="$folderPath\$paperpage.jpg" "$fileAddress" -dBATCH
 	Write-Output("Converting page $paperpage`. Colour values: $pagecolour <<<< colour")
-}
-
-#Check for arguments
-if ($args.Length -gt 0) {
-	$forceblackandwhite = $args[0]
-	if ($forceblackandwhite -eq 'bw'){
-		Write-Host "Forcing black and white conversion for all pages except cover." -ForegroundColor Green
-	} else {
-		Write-Host "Argument not recognised. Continuing with default conversion." -ForegroundColor Red
-	}
 }
 
 # Create OpenFileDialog to select a file
@@ -40,9 +33,11 @@ $fileDialog.Multiselect = $true
 # Display file dialog and check if the selection was successful
 if ($fileDialog.ShowDialog() -eq 'OK') {
     $selectedFiles = $fileDialog.FileNames
-    Write-Output "Selected files:"
+
+	#Print conversion settings
+	Write-Output "Conversion settings: Black and white png = $blackres DPI; Colour jpeg: $colourres DPI; Force B&W: $forceblackandwhite"
+
     foreach ($fileAddress in $selectedFiles) {
-        Write-Output $fileAddress
 
 		# Check if the file address is valid
 		if (Test-Path -LiteralPath $fileAddress) {
@@ -50,7 +45,13 @@ if ($fileDialog.ShowDialog() -eq 'OK') {
 			# Check if the file is a PDF
 			$fileExtension = [System.IO.Path]::GetExtension($fileAddress) 
 			if ($fileExtension -eq ".pdf") {
-   
+				Write-Output "Converting: $fileAddress"
+
+				#Check for arguments
+				if ($forceblackandwhite -eq $True){
+					Write-Host "Forcing black and white conversion for all pages except cover."
+				}
+
 	  			# Get the file name without the extension
 	  			$fileName = [System.IO.Path]::GetFileNameWithoutExtension($fileAddress)
 
@@ -66,7 +67,7 @@ if ($fileDialog.ShowDialog() -eq 'OK') {
 				# Get colour info from each of the pages using ghostscript's inkcov
 				Write-Output("Analysing page colour data for $filename...")
 				$pagescolourinfo = gswin64c.exe  -o - -sDEVICE=inkcov "$fileAddress" | select-string -Pattern "CMYK"
-				Write-Host("Colour analysis complete.") -ForegroundColor Green
+				Write-Host("Colour analysis complete.")
 
 				if ($forceblackandwhite -eq 'bw'){
 
@@ -112,7 +113,7 @@ if ($fileDialog.ShowDialog() -eq 'OK') {
 
 				# Save version information to readme stored in folder
 				$readmepath = Join-Path $folderPath -ChildPath "readme.txt"
-				Write-Output("Converted from pdf with pdf-cbz-converter.ps1 $version.`nPowershell script created by advert665, conversion powered by Ghostscript.`nhttps://github.com/advert665/pdf-cbz-converter/") | Out-File -Filepath $readmepath 
+				Write-Output("Converted from pdf with pdf-cbz-converter $version.`nBlack and white $blackres DPI png; Colour $colourres DPI $quality`% quality jpeg.`nPowershell script created by advert665, conversion powered by Ghostscript.`nhttps://github.com/advert665/pdf-cbz-converter/") | Out-File -Filepath $readmepath 
 
 	  			# Compress the new folder into a zip file
 	 			Compress-Archive -Path $folderPath -DestinationPath "$folderPath.zip" -CompressionLevel Optimal -Force

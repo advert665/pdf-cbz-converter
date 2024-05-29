@@ -1,9 +1,11 @@
-# Pdf-Cbz-Converter 0.2
+# Pdf-Cbz-Converter 0.4
 This is a simple PowerShell script that batch converts .pdf files to .cbz using Ghostscript. 
 
 It was created to remedy the Humble Bundle tendency to release graphic novel and comic bundles as .pdf files only. It is written as simply as possible so that anyone can easily check the file and see that it is safe to use. 
 
-By default the script analyses the colour data of each page and coverts grayscale pages to a 600dpi lossless png and colour pages to 400dpi jpegs. **Version 0.3** of the script adds the ability to force a grayscale conversion for all pages except the cover. To do this pass `bw` as an argument to the script. Previous versions of the script are available in the archive.
+By default the script analyses the colour data of each page and coverts grayscale pages to a 600dpi lossless png and colour pages to 400dpi jpegs with 90% compression quality. This will create large, high-fidelity files. Pass the script `-blackres`, `-colourres`, and `-quality` parameters to override these settings.
+
+Some visually black and white pdf pages have colour data which will result in the script converting them to jpeg. To override this behaviour set `-forceblackandwhite` to $True.
 
 ## Running the Script
 
@@ -19,25 +21,9 @@ By default the script analyses the colour data of each page and coverts grayscal
 # Default conversion
 ./PATH_TO_SCRIPT/pdf-cbz-converter.ps1
 
-# Force grayscale (excluding cover)
-./PATH_TO_SCRIPT/pdf-cbz-converter.ps1 bw
+# Choose custom settings
+./PATH_TO_SCRIPT/pdf-cbz-converter.ps1 -blackres 600 -colourres 600 -quality 90 -forceblackandwhite -$False
 ```
-5) A file selection window will appear. Select multiple files using shift.
+5) A file selection window will appear. Select multiple files using shift or ctrl.
 
-## Altering the script
-
-If you want to change the quality settings you can change these lines of the script:
-```PowerShell
-# Black and White
-gswin64c.exe -q -dUseCropBox -dNOSAFER -dNOPAUSE -sDEVICE=pnggray -r600 [...]
-
-# Colour
-gswin64c.exe -q -dUseCropBox -dNOSAFER -dNOPAUSE -sDEVICE=jpeg -r400 -dJPEGQ=90 [...]
-```
-- `-r600` sets the DPI for the pdf-image conversion to 600, `-r400` sets it to 400. The higher the number the better the quality, but the larger the file size.
-- `-dJPEG=90` sets the jpeg compression to 90%. A lower number reduces file size but reduces quality.
-- png files are lossless, so there is no compression option for the black and white images, but they are much smaller anyway.
-
-I found these settings optimal for my use case, but the file sizes are often as large/larger than the pdf. YMMV.
-
-If there is sufficient interest I can create a Bash/MacOS version too.
+If there is sufficient interest I can create a Bash/MacOS version. Earlier versions of the script are available in the archive folder.
