@@ -1,11 +1,13 @@
 # Pdf-Cbz-Converter 0.4
 This is a simple PowerShell script that batch converts .pdf files to .cbz using Ghostscript. 
 
-It was created to remedy the Humble Bundle tendency to release graphic novel and comic bundles as .pdf files only. It is written as simply as possible so that anyone can easily check the file and see that it is safe to use. 
+It was created to remedy the Humble Bundle tendency to release graphic novel and comic bundles as .pdf files only. It is written as simply as possible so that anyone can easily check the file and see that it is safe to use.
+
+## Settings
 
 By default the script analyses the colour data of each page and coverts grayscale pages to a 600dpi lossless png and colour pages to 400dpi jpegs with 90% compression quality. This will create large, high-fidelity files. Pass the script `-blackres`, `-colourres`, and `-quality` parameters to override these settings.
 
-Some visually black and white pdf pages have colour data which will result in the script converting them to jpeg. To override this behaviour set `-forceblackandwhite` to $True.
+Some visually black and white pdf pages have colour data, which will result in the script converting them to jpeg. To override this behaviour set `-forceblackandwhite` to $True. This will force all but the cover page to be treated as black and white for the conversion.
 
 ## Running the Script
 
