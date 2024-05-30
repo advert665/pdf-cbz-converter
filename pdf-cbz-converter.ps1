@@ -35,7 +35,7 @@ if ($fileDialog.ShowDialog() -eq 'OK') {
     $selectedFiles = $fileDialog.FileNames
 
 	#Print conversion settings
-	Write-Output "Conversion settings: Black and white png = $blackres DPI; Colour jpeg: $colourres DPI; Force B&W: $forceblackandwhite"
+	Write-Output "Conversion settings: Black and white png = $blackres DPI; Colour jpeg: $colourres DPI; Quality: $quality`%; Force B&W: $forceblackandwhite"
 
     foreach ($fileAddress in $selectedFiles) {
 
