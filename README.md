@@ -5,9 +5,16 @@ It was created to remedy the Humble Bundle tendency to release graphic novel and
 
 ## Settings
 
-By default the script analyses the colour data of each page and coverts grayscale pages to a 600dpi lossless png and colour pages to 400dpi jpegs with 90% compression quality. This will create large, high-fidelity files. Pass the script `-blackres`, `-colourres`, and `-quality` parameters to override these settings.
+By default the script converts grayscale pages to 600dpi lossless pngs and colour pages to 400dpi jpegs with 90% compression quality. 
 
-Some visually black and white pdf pages have colour data, which will result in the script converting them to jpeg. To override this behaviour set `-forceblackandwhite` to $True. This will force all but the cover page to be treated as black and white for the conversion.
+Version 0.4 allows users to pass parameters to the script to override the default quality settings.
+
+The parameters are:
+
+- `-blackres` = sets the DPI for black and white pages (default 600);
+- `-colourres` = sets the DPI for colour pages (default 400);
+- `-quality` = sets the jpeg compression quality for colour pages (default 90);
+- `-forceblackandwhite` = Forces black and white conversion for all but the cover page (default $False).
 
 ## Running the Script
 
@@ -24,7 +31,7 @@ Some visually black and white pdf pages have colour data, which will result in t
 ./PATH_TO_SCRIPT/pdf-cbz-converter.ps1
 
 # Choose custom settings
-./PATH_TO_SCRIPT/pdf-cbz-converter.ps1 -blackres 600 -colourres 600 -quality 90 -forceblackandwhite -$False
+./PATH_TO_SCRIPT/pdf-cbz-converter.ps1 -blackres 600 -colourres 600 -quality 90 -forceblackandwhite $False
 ```
 5) A file selection window will appear. Select multiple files using shift or ctrl.
 
