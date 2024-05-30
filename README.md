@@ -28,10 +28,10 @@ The parameters are:
 
 ```powershell
 # Default conversion
-./PATH_TO_SCRIPT/pdf-cbz-converter.ps1
+C:\PATH_TO_SCRIPT\pdf-cbz-converter.ps1
 
 # Choose custom settings
-./PATH_TO_SCRIPT/pdf-cbz-converter.ps1 -blackres 600 -colourres 600 -quality 90 -forceblackandwhite $False
+C:\PATH_TO_SCRIPT\pdf-cbz-converter.ps1 -blackres 600 -colourres 600 -quality 90 -forceblackandwhite $False
 ```
 5) A file selection window will appear. Select multiple files using shift or ctrl.
 
