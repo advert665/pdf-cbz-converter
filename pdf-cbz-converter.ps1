@@ -47,11 +47,6 @@ if ($fileDialog.ShowDialog() -eq 'OK') {
 			if ($fileExtension -eq ".pdf") {
 				Write-Output "Converting: $fileAddress"
 
-				#Check for arguments
-				if ($forceblackandwhite -eq $True){
-					Write-Host "Forcing black and white conversion for all pages except cover."
-				}
-
 	  			# Get the file name without the extension
 	  			$fileName = [System.IO.Path]::GetFileNameWithoutExtension($fileAddress)
 
@@ -69,7 +64,9 @@ if ($fileDialog.ShowDialog() -eq 'OK') {
 				$pagescolourinfo = gswin64c.exe  -o - -sDEVICE=inkcov "$fileAddress" | select-string -Pattern "CMYK"
 				Write-Host("Colour analysis complete.")
 
-				if ($forceblackandwhite -eq 'bw'){
+				if ($forceblackandwhite -eq $True){
+					
+					Write-Host "Forcing black and white conversion for all pages except cover."
 
 					# Convert all pages except cover to grayscale
 					For($page = 0; $page -le $pagescolourinfo.length-1; $page++) {
@@ -113,7 +110,7 @@ if ($fileDialog.ShowDialog() -eq 'OK') {
 
 				# Save version information to readme stored in folder
 				$readmepath = Join-Path $folderPath -ChildPath "readme.txt"
-				Write-Output("Converted from pdf with pdf-cbz-converter $version.`nBlack and white $blackres DPI png; Colour $colourres DPI $quality`% quality jpeg.`nPowershell script created by advert665, conversion powered by Ghostscript.`nhttps://github.com/advert665/pdf-cbz-converter/") | Out-File -Filepath $readmepath 
+				Write-Output("Converted from pdf with pdf-cbz-converter $version.`nGrayscale $blackres DPI png; Colour $colourres DPI $quality`% jpeg.`nPowershell script created by advert665, conversion powered by Ghostscript.`nhttps://github.com/advert665/pdf-cbz-converter/") | Out-File -Filepath $readmepath 
 
 	  			# Compress the new folder into a zip file
 	 			Compress-Archive -Path $folderPath -DestinationPath "$folderPath.zip" -CompressionLevel Optimal -Force
