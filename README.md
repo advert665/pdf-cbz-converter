@@ -53,6 +53,7 @@ Options mirror the PowerShell parameters:
 - `-c|--colourres` sets DPI for colour pages (default 400)
 - `-q|--quality` sets JPEG compression quality for colour pages (default 90)
 - `-f|--forceblackandwhite` forces black and white conversion for all but the cover page
+- `-t|--test` skips CBZ packaging so you can inspect the generated images in the temporary folder
 
 Each PDF generates a temporary folder named after the file, which is zipped to `.cbz` in the same directory before the folder is removed.
 

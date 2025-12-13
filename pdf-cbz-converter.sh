@@ -7,6 +7,7 @@ blackres=600
 colourres=400
 quality=90
 force_black_and_white=0
+test_mode=0
 
 usage() {
 	cat <<'EOF'
@@ -17,10 +18,12 @@ Options:
   -c, --colourres INT          DPI for colour pages (default 400)
   -q, --quality INT            JPEG quality for colour pages (default 90)
   -f, --forceblackandwhite     Force B&W for all pages except the cover
+  -t, --test                   Skip CBZ packaging; leave image folder for inspection
   -h, --help                   Show this help message
 EOF
 }
 
+# Parse CLI arguments for settings and gather file list
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 		-b|--blackres)
@@ -42,6 +45,10 @@ while [[ $# -gt 0 ]]; do
 			force_black_and_white=1
 			shift
 			;;
+		-t|--test)
+			test_mode=1
+			shift
+			;;
 		-h|--help)
 			usage
 			exit 0
@@ -61,32 +68,39 @@ while [[ $# -gt 0 ]]; do
 	esac
 done
 
+# Require at least one PDF argument
 if [[ $# -lt 1 ]]; then
 	usage
 	exit 1
 fi
 
+# Verify required tools are available
 command -v gs >/dev/null 2>&1 || { echo "Ghostscript (gs) is required but not installed." >&2; exit 1; }
 command -v zip >/dev/null 2>&1 || { echo "zip is required to package the CBZ output." >&2; exit 1; }
 
+# Convert a single page to grayscale PNG
 convert_grayscale() {
 	local file="$1"
 	local page="$2"
 	local output_dir="$3"
+	local page_colour="$4"
 
 	gs -q -dUseCropBox -dNOSAFER -dNOPAUSE -dBATCH -sDEVICE=pnggray -r"$blackres" -dFirstPage="$page" -dLastPage="$page" -sOutputFile="$output_dir/${page}.png" "$file"
-	echo "Page $page -> grayscale (${blackres} DPI)"
+	echo "Page $page -> grayscale (${blackres} DPI). Colour values: ${page_colour} <<<< black and white"
 }
 
+# Convert a single page to colour JPEG
 convert_colour() {
 	local file="$1"
 	local page="$2"
 	local output_dir="$3"
+	local page_colour="$4"
 
 	gs -q -dUseCropBox -dNOSAFER -dNOPAUSE -dBATCH -sDEVICE=jpeg -r"$colourres" -dJPEGQ="$quality" -dFirstPage="$page" -dLastPage="$page" -sOutputFile="$output_dir/${page}.jpg" "$file"
-	echo "Page $page -> colour (${colourres} DPI, quality ${quality}%)"
+	echo "Page $page -> colour (${colourres} DPI, quality ${quality}%). Colour values: ${page_colour} <<<< colour"
 }
 
+# Convert an entire PDF to CBZ
 convert_pdf() {
 	local file="$1"
 
@@ -130,6 +144,7 @@ convert_pdf() {
 
 	echo "Colour analysis complete."
 
+	# Process pages based on colour data (or forced mode)
 	local idx page page_colour
 	for (( idx=0; idx<total_pages; idx++ )); do
 		page=$((idx + 1))
@@ -137,19 +152,20 @@ convert_pdf() {
 
 		if (( force_black_and_white )); then
 			if (( page == 1 )); then
-				convert_colour "$file" "$page" "$output_dir"
+				convert_colour "$file" "$page" "$output_dir" "$page_colour"
 			else
-				convert_grayscale "$file" "$page" "$output_dir"
+				convert_grayscale "$file" "$page" "$output_dir" "$page_colour"
 			fi
 		else
 			if [[ "$page_colour" == *"$only_black_and_white"* ]]; then
-				convert_grayscale "$file" "$page" "$output_dir"
+				convert_grayscale "$file" "$page" "$output_dir" "$page_colour"
 			else
-				convert_colour "$file" "$page" "$output_dir"
+				convert_colour "$file" "$page" "$output_dir" "$page_colour"
 			fi
 		fi
 	done
 
+	# Record conversion details for reference
 	cat > "$output_dir/readme.txt" <<EOF
 Converted from pdf with pdf-cbz-converter ${version}.
 Grayscale ${blackres} DPI png; Colour ${colourres} DPI ${quality}% jpeg.
@@ -157,15 +173,20 @@ Bash script created by advert665, conversion powered by Ghostscript.
 https://github.com/advert665/pdf-cbz-converter/
 EOF
 
-	(
-		cd "$dir"
-		zip -qr "$name.zip" "$name"
-		mv -f "$name.zip" "$name.cbz"
-	)
+	# Package folder as CBZ and clean up temp files (unless in test mode)
+	if (( test_mode )); then
+		echo "Test mode enabled: leaving images in $output_dir (no CBZ created)."
+	else
+		(
+			cd "$dir"
+			zip -qr "$name.zip" "$name"
+			mv -f "$name.zip" "$name.cbz"
+		)
 
-	echo "Removing temporary folder..."
-	rm -rf "$output_dir"
-	echo "Conversion of $file to .cbz complete!"
+		echo "Removing temporary folder..."
+		rm -rf "$output_dir"
+		echo "Conversion of $file to .cbz complete!"
+	fi
 }
 
 status=0
