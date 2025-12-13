@@ -1,5 +1,5 @@
 # Pdf-Cbz-Converter 0.4
-This is a simple PowerShell script that batch converts .pdf files to .cbz using Ghostscript. 
+This is a simple PowerShell script (with a Bash equivalent) that batch converts .pdf files to .cbz using Ghostscript. 
 
 It was created to remedy the Humble Bundle tendency to release graphic novel and comic bundles as .pdf files only. It is written as simply as possible so that anyone can easily check the file and see that it is safe to use.
 
@@ -16,7 +16,7 @@ The parameters are:
 - `-quality` = sets the jpeg compression quality for colour pages (default 90);
 - `-forceblackandwhite` = Forces black and white conversion for all but the cover page (default $False).
 
-## Running the Script
+## Running the Script (PowerShell)
 
 1) You will need to install [Ghostscript](https://ghostscript.com/releases/gsdnld.html) to process the files.
 
@@ -35,4 +35,25 @@ C:\PATH_TO_SCRIPT\pdf-cbz-converter.ps1 -blackres 600 -colourres 600 -quality 90
 ```
 5) A file selection window will appear. Select multiple files using shift or ctrl.
 
-If there is sufficient interest I can create a Bash/MacOS version. Earlier versions of the script are available in the archive folder.
+## Running the Script (Bash / macOS / Linux)
+
+1) Install Ghostscript and `zip` (both available via most package managers).
+
+2) Run the script with one or more PDF paths:
+```bash
+# Default conversion
+./pdf-cbz-converter.sh ./path/to/file.pdf
+
+# Custom settings
+./pdf-cbz-converter.sh -b 600 -c 600 -q 90 -f ./path/to/file.pdf ./path/to/another.pdf
+```
+
+Options mirror the PowerShell parameters:
+- `-b|--blackres` sets DPI for black and white pages (default 600)
+- `-c|--colourres` sets DPI for colour pages (default 400)
+- `-q|--quality` sets JPEG compression quality for colour pages (default 90)
+- `-f|--forceblackandwhite` forces black and white conversion for all but the cover page
+
+Each PDF generates a temporary folder named after the file, which is zipped to `.cbz` in the same directory before the folder is removed.
+
+Earlier versions of the script are available in the archive folder.
