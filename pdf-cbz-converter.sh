@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-version="0.4"
+version="0.5"
 only_black_and_white="0.00000"
 blackres=600
 colourres=400

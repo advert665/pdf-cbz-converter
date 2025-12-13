@@ -10,7 +10,7 @@ Add-Type -AssemblyName System.Windows.Forms
 
 #Constants
 $onlyblackandwhite = "0.00000"
-$version = "0.4"
+$version = "0.5"
 
 #Functions
 function Convert-Grayscale {
